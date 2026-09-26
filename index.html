@@ -2495,13 +2495,24 @@ const noiseInput =
   document.getElementById("noise");
 
 if (noiseInput) {
-
-  noiseInput.addEventListener(
+noiseInput.addEventListener(
     "input",
-    generateData
+    function() {
+
+      const value =
+        document.getElementById(
+          "noiseValue"
+        );
+
+      if (value) {
+        value.textContent =
+          noiseInput.value;
+      }
+
+      generateData();
+    }
   );
 }
-
 
 const learningRateInput =
   document.getElementById("learningRate");
