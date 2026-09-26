@@ -1701,7 +1701,39 @@ function generateData() {
   /* =========================================================
    CALCULATE LOSS
 ========================================================= */
+function updateDatasetInfo() {
 
+  const total =
+    document.getElementById("sampleInfo");
+
+  const class0 =
+    document.getElementById("class0Info");
+
+  const class1 =
+    document.getElementById("class1Info");
+
+  const count0 =
+    points.filter(
+      point => point.label === 0
+    ).length;
+
+  const count1 =
+    points.filter(
+      point => point.label === 1
+    ).length;
+
+  if (total) {
+    total.textContent = points.length;
+  }
+
+  if (class0) {
+    class0.textContent = count0;
+  }
+
+  if (class1) {
+    class1.textContent = count1;
+  }
+  }
 function calculateLoss() {
 
   if (points.length === 0) {
