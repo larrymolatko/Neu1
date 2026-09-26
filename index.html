@@ -1697,70 +1697,7 @@ function generateData() {
   resetTrainingUI();
   drawGraph();
 }
-/* =========================================================
-   GENERATE DATASET
-========================================================= */
 
-
-  /* -------------------------
-     GENERATE DATA
-  ------------------------- */
-
-  if (type === "clusters") {
-
-    points =
-      generateClusters(
-        count,
-        noise
-      );
-
-  } else if (type === "xor") {
-
-    points =
-      generateXOR(
-        count,
-        noise
-      );
-
-  } else if (type === "circle") {
-
-    points =
-      generateCircle(
-        count,
-        noise
-      );
-
-  } else {
-
-    console.error(
-      "Neu1: Unknown dataset type:",
-      type
-    );
-
-    return;
-  }
-
-  /* -------------------------
-     RESET STATE
-  ------------------------- */
-
-  currentEpoch = 0;
-  lastPrediction = null;
-
-  /* -------------------------
-     UPDATE UI
-  ------------------------- */
-
-  updateDatasetInfo();
-  resetTrainingUI();
-  drawGraph();
-
-  console.log(
-    "Neu1 Dataset Generated:",
-    points.length,
-    "samples"
-  );
-  }
   /* =========================================================
    CALCULATE LOSS
 ========================================================= */
