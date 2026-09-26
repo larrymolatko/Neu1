@@ -780,66 +780,513 @@
 
 
           document.getElementById(
-            "loss"
-          ).textContent =
-            loss.toFixed(3);
+<script>
+
+let points = [];
+let training = false;
+
+/* =========================
+   NEURAL NETWORK
+========================= */
+
+const inputSize = 2;
+const hiddenSize = 4;
+
+let weightsInputHidden = [];
+let biasHidden = [];
+
+let weightsHiddenOutput = [];
+let biasOutput = 0;
 
 
-          document.getElementById(
-            "accuracy"
-          ).textContent =
-            accuracy.toFixed(1) + "%";
+/* =========================
+   RANDOM NUMBER
+========================= */
+
+function randomWeight() {
+  return Math.random() * 2 - 1;
+}
 
 
-          /*
-            Animate neurons
-          */
+/* =========================
+   INITIALIZE NETWORK
+========================= */
 
-          neurons.forEach(
-            neuron => {
+function initializeNetwork() {
 
-              neuron.classList.toggle(
-                "active"
-              );
+  weightsInputHidden = [];
 
-            }
-          );
+  biasHidden = [];
+
+  for (let i = 0; i < hiddenSize; i++) {
+
+    weightsInputHidden.push([
+      randomWeight(),
+      randomWeight()
+    ]);
+
+    biasHidden.push(randomWeight());
+
+  }
 
 
-          /*
-            Finish
-          */
+  weightsHiddenOutput = [];
 
-          if (epoch >= 100) {
+  for (let i = 0; i < hiddenSize; i++) {
 
-            clearInterval(interval);
+    weightsHiddenOutput.push(
+      randomWeight()
+    );
 
-            training = false;
+  }
 
-            neurons.forEach(
-              neuron => {
+  biasOutput = randomWeight();
 
-                neuron.classList.remove(
-                  "active"
-                );
+}
 
-              }
-            );
 
-          }
+/* =========================
+   ACTIVATION
+========================= */
 
-        }, 50);
+function sigmoid(x) {
+
+  return 1 / (1 + Math.exp(-x));
+
+}
+
+
+/* =========================
+   FORWARD PASS
+========================= */
+
+function forward(x, y) {
+
+  let hidden = [];
+
+  for (let i = 0; i < hiddenSize; i++) {
+
+    const sum =
+      x * weightsInputHidden[i][0] +
+      y * weightsInputHidden[i][1] +
+      biasHidden[i];
+
+    hidden.push(
+      sigmoid(sum)
+    );
+
+  }
+
+
+  let outputSum = biasOutput;
+
+  for (let i = 0; i < hiddenSize; i++) {
+
+    outputSum +=
+      hidden[i] *
+      weightsHiddenOutput[i];
+
+  }
+
+
+  const output =
+    sigmoid(outputSum);
+
+
+  return {
+    hidden,
+    output
+  };
+
+}
+
+
+/* =========================
+   GENERATE DATA
+========================= */
+
+function generateData() {
+
+  points = [];
+
+  for (let i = 0; i < 50; i++) {
+
+    points.push({
+
+      x: Math.random() * 0.4,
+      y: Math.random() * 0.4,
+      label: 0
+
+    });
+
+
+    points.push({
+
+      x: 0.6 + Math.random() * 0.4,
+      y: 0.6 + Math.random() * 0.4,
+      label: 1
+
+    });
+
+  }
+
+  drawGraph();
+
+}
+
+
+/* =========================
+   DRAW GRAPH
+========================= */
+
+function drawGraph() {
+
+  const canvas =
+    document.getElementById("graph");
+
+  const ctx =
+    canvas.getContext("2d");
+
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+
+  /* Grid */
+
+  ctx.strokeStyle = "#151515";
+
+  for (
+    let x = 0;
+    x <= canvas.width;
+    x += 50
+  ) {
+
+    ctx.beginPath();
+
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, canvas.height);
+
+    ctx.stroke();
+
+  }
+
+
+  for (
+    let y = 0;
+    y <= canvas.height;
+    y += 50
+  ) {
+
+    ctx.beginPath();
+
+    ctx.moveTo(0, y);
+    ctx.lineTo(canvas.width, y);
+
+    ctx.stroke();
+
+  }
+
+
+  /* Decision boundary */
+
+  const gridSize = 20;
+
+  for (
+    let gx = 0;
+    gx < gridSize;
+    gx++
+  ) {
+
+    for (
+      let gy = 0;
+      gy < gridSize;
+      gy++
+    ) {
+
+      const x =
+        gx / gridSize;
+
+      const y =
+        gy / gridSize;
+
+
+      const result =
+        forward(x, y);
+
+
+      if (result.output > 0.5) {
+
+        ctx.fillStyle =
+          "rgba(217, 70, 239, 0.08)";
+
+      } else {
+
+        ctx.fillStyle =
+          "rgba(139, 92, 246, 0.08)";
+
+      }
+
+
+      ctx.fillRect(
+
+        gx *
+          canvas.width /
+          gridSize,
+
+        gy *
+          canvas.height /
+          gridSize,
+
+        canvas.width /
+          gridSize + 1,
+
+        canvas.height /
+          gridSize + 1
+
+      );
 
     }
 
+  }
 
-    /* =========================
-       INITIAL DATASET
-    ========================= */
 
-    generateData();
+  /* Data points */
 
-  </script>
+  points.forEach(point => {
+
+    ctx.beginPath();
+
+    ctx.arc(
+
+      point.x *
+        canvas.width,
+
+      point.y *
+        canvas.height,
+
+      6,
+
+      0,
+
+      Math.PI * 2
+
+    );
+
+
+    ctx.fillStyle =
+      point.label === 0
+        ? "#8b5cf6"
+        : "#d946ef";
+
+
+    ctx.fill();
+
+  });
+
+}
+
+
+/* =========================
+   TRAIN
+========================= */
+
+function train() {
+
+  if (training) return;
+
+  training = true;
+
+
+  const learningRate = 0.5;
+
+  let epoch = 0;
+
+
+  const interval =
+    setInterval(() => {
+
+      let totalLoss = 0;
+
+      let correct = 0;
+
+
+      points.forEach(point => {
+
+        const result =
+          forward(
+            point.x,
+            point.y
+          );
+
+
+        const output =
+          result.output;
+
+
+        const error =
+          point.label - output;
+
+
+        totalLoss +=
+          error * error;
+
+
+        if (
+          (output >= 0.5 &&
+            point.label === 1) ||
+
+          (output < 0.5 &&
+            point.label === 0)
+        ) {
+
+          correct++;
+
+        }
+
+
+        /*
+          Output gradient
+        */
+
+        const outputGradient =
+          error *
+          output *
+          (1 - output);
+
+
+        /*
+          Update hidden → output
+        */
+
+        for (
+          let i = 0;
+          i < hiddenSize;
+          i++
+        ) {
+
+          weightsHiddenOutput[i] +=
+
+            learningRate *
+            outputGradient *
+            result.hidden[i];
+
+        }
+
+
+        biasOutput +=
+          learningRate *
+          outputGradient;
+
+
+        /*
+          Hidden layer update
+        */
+
+        for (
+          let i = 0;
+          i < hiddenSize;
+          i++
+        ) {
+
+          const hidden =
+            result.hidden[i];
+
+
+          const hiddenGradient =
+
+            hidden *
+            (1 - hidden) *
+
+            weightsHiddenOutput[i] *
+
+            outputGradient;
+
+
+          weightsInputHidden[i][0] +=
+
+            learningRate *
+            hiddenGradient *
+            point.x;
+
+
+          weightsInputHidden[i][1] +=
+
+            learningRate *
+            hiddenGradient *
+            point.y;
+
+
+          biasHidden[i] +=
+
+            learningRate *
+            hiddenGradient;
+
+        }
+
+      });
+
+
+      epoch++;
+
+
+      const loss =
+        totalLoss /
+        points.length;
+
+
+      const accuracy =
+        correct /
+        points.length *
+        100;
+
+
+      document.getElementById(
+        "epoch"
+      ).textContent = epoch;
+
+
+      document.getElementById(
+        "loss"
+      ).textContent =
+        loss.toFixed(4);
+
+
+      document.getElementById(
+        "accuracy"
+      ).textContent =
+        accuracy.toFixed(1) + "%";
+
+
+      drawGraph();
+
+
+      if (epoch >= 100) {
+
+        clearInterval(interval);
+
+        training = false;
+
+      }
+
+    }, 40);
+
+}
+
+
+/* =========================
+   START
+========================= */
+
+initializeNetwork();
+
+generateData();
+
+</script>
 
 </body>
   </html>
