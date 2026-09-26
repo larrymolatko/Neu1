@@ -339,7 +339,7 @@ input[type="range"] {
 
 
 /* =========================================================
-   DATASET
+   DATASET 
 ========================================================= */
 
 .dataset-actions {
@@ -1701,39 +1701,6 @@ function generateData() {
    GENERATE DATASET
 ========================================================= */
 
-function generateData() {
-
-  const datasetType =
-    document.getElementById("datasetType");
-
-  const sampleCount =
-    document.getElementById("sampleCount");
-
-  const noiseInput =
-    document.getElementById("noise");
-
-  if (!datasetType || !sampleCount || !noiseInput) {
-    console.error(
-      "Neu1: Dataset controls not found."
-    );
-    return;
-  }
-
-  const type =
-    datasetType.value;
-
-  const count =
-    Number(sampleCount.value);
-
-  const noise =
-    Number(noiseInput.value);
-
-  if (!Number.isFinite(count) || count <= 0) {
-    console.error(
-      "Neu1: Invalid sample count."
-    );
-    return;
-  }
 
   /* -------------------------
      GENERATE DATA
