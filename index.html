@@ -1,816 +1,1319 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Neu1 — Neural Network Playground</title>
+<meta charset="UTF-8">
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
 
-    html {
-      scroll-behavior: smooth;
-    }
+<title>Neu1 — Neural Network Playground</title>
 
-    body {
+<style>
+
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
   color: #ffffff;
 
   background:
+
     radial-gradient(
       circle at 50% 0%,
-      rgba(124, 58, 237, 0.22),
+      rgba(124, 58, 237, 0.25),
       transparent 35%
     ),
+
     radial-gradient(
       circle at 0% 100%,
-      rgba(88, 28, 135, 0.14),
+      rgba(88, 28, 135, 0.16),
       transparent 30%
     ),
+
     #030303;
 
   background-attachment: fixed;
-    }
-
-    /* =========================
-       HEADER
-    ========================= */
-
-    header {
-      text-align: center;
-      padding: 45px 20px;
-      background: #070707;
-      border-bottom: 1px solid #32145f;
-      box-shadow: 0 0 35px rgba(124, 58, 237, 0.12);
-    }
-
-    .logo {
-      font-size: 48px;
-      font-weight: 800;
-      letter-spacing: -2px;
-      color: #a855f7;
-      text-shadow:
-        0 0 10px rgba(168, 85, 247, 0.5),
-        0 0 30px rgba(124, 58, 237, 0.25);
-    }
-
-    .subtitle {
-      margin-top: 10px;
-      color: #999;
-      font-size: 16px;
-    }
-
-    .version {
-      display: inline-block;
-      margin-top: 15px;
-      padding: 6px 12px;
-      border: 1px solid #32145f;
-      border-radius: 20px;
-      color: #c084fc;
-      font-size: 12px;
-    }
-
-    /* =========================
-       MAIN
-    ========================= */
-
-    main {
-      width: 100%;
-      max-width: 1050px;
-      margin: auto;
-      padding: 30px 20px;
-    }
-
-    .panel {
-      background: #0b0b0b;
-      border: 1px solid #24103f;
-      border-radius: 18px;
-      padding: 24px;
-      margin-bottom: 22px;
-      box-shadow:
-        0 0 25px rgba(124, 58, 237, 0.05);
-      transition: 0.25s;
-    }
-
-    .panel:hover {
-      border-color: #6d28d9;
-      box-shadow:
-        0 0 30px rgba(124, 58, 237, 0.12);
-    }
-
-    h2 {
-      margin-top: 0;
-      color: #c084fc;
-      font-size: 21px;
-    }
-
-    .description {
-      color: #888;
-      line-height: 1.6;
-    }
-
-    /* =========================
-       BUTTONS
-    ========================= */
-
-    button {
-      background: #7c3aed;
-      color: white;
-      border: none;
-      padding: 13px 22px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 600;
-      transition: 0.2s;
-
-      box-shadow:
-        0 0 15px rgba(124, 58, 237, 0.25);
-    }
-
-    button:hover {
-      background: #9333ea;
-      transform: translateY(-1px);
-
-      box-shadow:
-        0 0 25px rgba(168, 85, 247, 0.45);
-    }
-
-    button:active {
-      transform: translateY(0);
-    }
-
-    /* =========================
-       DATASET
-    ========================= */
-
-    .dataset-controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 18px;
-    }
-
-    /* =========================
-       NEURAL NETWORK
-    ========================= */
-
-    .network-container {
-      overflow-x: auto;
-      padding: 20px 0;
-    }
-
-    .network {
-      min-width: 500px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      gap: 60px;
-    }
-
-    .layer-container {
-      text-align: center;
-    }
-
-    .layer-title {
-      color: #888;
-      font-size: 13px;
-      margin-bottom: 15px;
-    }
-
-    .layer {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      align-items: center;
-    }
-
-    .neuron {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-
-      background: #7c3aed;
-      border: 2px solid #c084fc;
-
-      box-shadow:
-        0 0 12px rgba(168, 85, 247, 0.45),
-        0 0 25px rgba(124, 58, 237, 0.2);
-
-      transition: 0.3s;
-    }
-
-    .neuron.active {
-      background: #c084fc;
-
-      box-shadow:
-        0 0 15px #c084fc,
-        0 0 35px rgba(168, 85, 247, 0.7);
-    }
-
-    /* =========================
-       TRAINING
-    ========================= */
-
-    .training-controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns:
-        repeat(3, 1fr);
-
-      gap: 15px;
-    }
-
-    .stat {
-      background: #101010;
-      border: 1px solid #24103f;
-      border-radius: 12px;
-      padding: 18px;
-    }
-
-    .stat-label {
-      color: #777;
-      font-size: 12px;
-      margin-bottom: 8px;
-    }
-
-    .stat-value {
-      color: #c084fc;
-      font-size: 24px;
-      font-weight: bold;
-    }
-
-    /* =========================
-       GRAPH
-    ========================= */
-
-    .graph-wrapper {
-      position: relative;
-      width: 100%;
-      overflow: hidden;
-    }
-
-    canvas {
-      display: block;
-      width: 100%;
-      max-width: 800px;
-      height: 420px;
-
-      margin: auto;
-
-      background: #050505;
-
-      border: 1px solid #32145f;
-      border-radius: 14px;
-
-      box-shadow:
-        inset 0 0 40px rgba(124, 58, 237, 0.07);
-    }
-
-    /* =========================
-       FOOTER
-    ========================= */
-
-    footer {
-      text-align: center;
-      padding: 35px 20px;
-
-      color: #555;
-
-      border-top: 1px solid #151515;
-    }
-
-    footer strong {
-      color: #7c3aed;
-    }
-
-    /* =========================
-       MOBILE
-    ========================= */
-
-    @media (max-width: 650px) {
-
-      .logo {
-        font-size: 40px;
-      }
-
-      main {
-        padding: 20px 14px;
-      }
-
-      .panel {
-        padding: 18px;
-      }
-
-      .stats {
-        grid-template-columns: 1fr;
-      }
-
-      canvas {
-        height: 320px;
-      }
-
-    }
-  </style>
-</head>
-
-<body>
-
-  <!-- =========================
-       HEADER
-  ========================= -->
-
-  <header>
-
-    <div class="logo">
-      Neu1
-    </div>
-
-    <div class="subtitle">
-      Neural Network Playground
-    </div>
-
-    <div class="version">
-      V0.1 Experimental
-    </div>
-
-  </header>
-
-
-  <main>
-
-    <!-- =========================
-         DATASET
-    ========================= -->
-
-    <section class="panel">
-
-      <h2>
-        Dataset
-      </h2>
-
-      <p class="description">
-        Generate a simple dataset and let the neural network
-        learn how to separate two groups of data.
-      </p>
-
-      <div class="dataset-controls">
-
-        <button onclick="generateData()">
-          Generate Dataset
-        </button>
-
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         NEURAL NETWORK
-    ========================= -->
-
-    <section class="panel">
-
-      <h2>
-        Neural Network
-      </h2>
-
-      <div class="network-container">
-
-        <div class="network">
-
-          <!-- INPUT -->
-
-          <div class="layer-container">
-
-            <div class="layer-title">
-              Input Layer
-            </div>
-
-            <div class="layer">
-
-              <div class="neuron"></div>
-              <div class="neuron"></div>
-
-            </div>
-
-          </div>
-
-
-          <!-- HIDDEN -->
-
-          <div class="layer-container">
-
-            <div class="layer-title">
-              Hidden Layer
-            </div>
-
-            <div class="layer">
-
-              <div class="neuron"></div>
-              <div class="neuron"></div>
-              <div class="neuron"></div>
-              <div class="neuron"></div>
-
-            </div>
-
-          </div>
-
-
-          <!-- OUTPUT -->
-
-          <div class="layer-container">
-
-            <div class="layer-title">
-              Output Layer
-            </div>
-
-            <div class="layer">
-
-              <div class="neuron"></div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         TRAINING
-    ========================= -->
-
-    <section class="panel">
-
-      <h2>
-        Training
-      </h2>
-
-      <p class="description">
-        Train the neural network and watch its learning progress.
-      </p>
-
-      <div class="training-controls">
-
-        <button onclick="train()">
-          Train Neural Network
-        </button>
-
-      </div>
-
-
-      <div class="stats">
-
-        <div class="stat">
-
-          <div class="stat-label">
-            EPOCH
-          </div>
-
-          <div
-            class="stat-value"
-            id="epoch">
-            0
-          </div>
-
-        </div>
-
-
-        <div class="stat">
-
-          <div class="stat-label">
-            LOSS
-          </div>
-
-          <div
-            class="stat-value"
-            id="loss">
-            —
-          </div>
-
-        </div>
-
-
-        <div class="stat">
-
-          <div class="stat-label">
-            ACCURACY
-          </div>
-
-          <div
-            class="stat-value"
-            id="accuracy">
-            —
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         GRAPH
-    ========================= -->
-
-    <section class="panel">
-
-      <h2>
-        Decision Boundary
-      </h2>
-
-      <p class="description">
-        Visual representation of the dataset.
-      </p>
-
-      <div class="graph-wrapper">
-
-        <canvas
-          id="graph"
-          width="800"
-          height="420">
-        </canvas>
-
-      </div>
-
-    </section>
-
-  </main>
-
-
-  <!-- =========================
-       FOOTER
-  ========================= -->
-
-  <footer>
-
-    <strong>Neu1</strong>
-
-    <br>
-
-    Experiment. Learn. Build.
-
-  </footer>
-
-
-  <!-- =========================
-       JAVASCRIPT
-  ========================= -->
-
-  <script>
-
-    let points = [];
-
-    let training = false;
-
-
-    /* =========================
-       GENERATE DATASET
-    ========================= */
-
-    function generateData() {
-
-      points = [];
-
-      /*
-        Group 0
-      */
-
-      for (let i = 0; i < 50; i++) {
-
-        points.push({
-
-          x: Math.random() * 0.4,
-
-          y: Math.random() * 0.4,
-
-          label: 0
-
-        });
-
-
-        /*
-          Group 1
-        */
-
-        points.push({
-
-          x: 0.6 + Math.random() * 0.4,
-
-          y: 0.6 + Math.random() * 0.4,
-
-          label: 1
-
-        });
-
-      }
-
-      drawGraph();
-
-    }
-
-
-    /* =========================
-       DRAW GRAPH
-    ========================= */
-
-    function drawGraph() {
-
-      const canvas =
-        document.getElementById("graph");
-
-      const ctx =
-        canvas.getContext("2d");
-
-
-      ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
-
-
-      /*
-        Grid
-      */
-
-      ctx.strokeStyle = "#151515";
-
-      ctx.lineWidth = 1;
-
-
-      for (let x = 0; x <= canvas.width; x += 50) {
-
-        ctx.beginPath();
-
-        ctx.moveTo(x, 0);
-
-        ctx.lineTo(x, canvas.height);
-
-        ctx.stroke();
-
-      }
-
-
-      for (let y = 0; y <= canvas.height; y += 50) {
-
-        ctx.beginPath();
-
-        ctx.moveTo(0, y);
-
-        ctx.lineTo(canvas.width, y);
-
-        ctx.stroke();
-
-      }
-
-
-      /*
-        Data points
-      */
-
-      points.forEach(point => {
-
-        ctx.beginPath();
-
-        ctx.arc(
-
-          point.x * canvas.width,
-
-          point.y * canvas.height,
-
-          6,
-
-          0,
-
-          Math.PI * 2
-
-        );
-
-
-        if (point.label === 0) {
-
-          ctx.fillStyle = "#8b5cf6";
-
-        } else {
-
-          ctx.fillStyle = "#d946ef";
-
-        }
-
-
-        ctx.fill();
-
-      });
-
-    }
-
-
-    /* =========================
-       TRAIN
-    ========================= */
-
-    function train() {
-
-      if (training) return;
-
-      training = true;
-
-
-      let epoch = 0;
-
-
-      const neurons =
-        document.querySelectorAll(".neuron");
-
-
-      const interval =
-        setInterval(() => {
-
-          epoch++;
-
-
-          /*
-            Simulated learning curve
-          */
-
-          const loss =
-            Math.max(
-
-              0.02,
-
-              1 / (epoch * 0.08 + 1)
-
-            );
-
-
-          const accuracy =
-            Math.min(
-
-              99,
-
-              50 + epoch * 0.5
-
-            );
-
-
-          /*
-            Update statistics
-          */
-
-          document.getElementById(
-            "epoch"
-          ).textContent = epoch;
-
-
-          document.getElementById(
-<script>
-
-let points = [];
-let training = false;
-
-/* =========================
-   NEURAL NETWORK
-========================= */
-
-const inputSize = 2;
-const hiddenSize = 4;
-
-let weightsInputHidden = [];
-let biasHidden = [];
-
-let weightsHiddenOutput = [];
-let biasOutput = 0;
-
-
-/* =========================
-   RANDOM NUMBER
-========================= */
-
-function randomWeight() {
-  return Math.random() * 2 - 1;
 }
 
 
-/* =========================
+/* =========================================================
+   HEADER
+========================================================= */
+
+header {
+
+  text-align: center;
+
+  padding: 45px 20px;
+
+  background: #070707;
+
+  border-bottom:
+    1px solid #32145f;
+
+  box-shadow:
+    0 0 35px
+    rgba(124, 58, 237, 0.12);
+}
+
+.logo {
+
+  font-size: 48px;
+
+  font-weight: 800;
+
+  letter-spacing: -2px;
+
+  color: #a855f7;
+
+  text-shadow:
+    0 0 10px
+    rgba(168, 85, 247, 0.5),
+
+    0 0 30px
+    rgba(124, 58, 237, 0.25);
+}
+
+.subtitle {
+
+  margin-top: 10px;
+
+  color: #999;
+
+  font-size: 16px;
+}
+
+.version {
+
+  display: inline-block;
+
+  margin-top: 15px;
+
+  padding: 6px 12px;
+
+  border:
+    1px solid #32145f;
+
+  border-radius: 20px;
+
+  color: #c084fc;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+main {
+
+  width: 100%;
+
+  max-width: 1100px;
+
+  margin: auto;
+
+  padding: 30px 20px;
+}
+
+.panel {
+
+  background: #0b0b0b;
+
+  border:
+    1px solid #24103f;
+
+  border-radius: 18px;
+
+  padding: 24px;
+
+  margin-bottom: 22px;
+
+  box-shadow:
+    0 0 25px
+    rgba(124, 58, 237, 0.05);
+
+  transition: 0.25s;
+}
+
+.panel:hover {
+
+  border-color: #6d28d9;
+
+  box-shadow:
+    0 0 30px
+    rgba(124, 58, 237, 0.12);
+}
+
+h2 {
+
+  margin-top: 0;
+
+  color: #c084fc;
+
+  font-size: 21px;
+}
+
+.description {
+
+  color: #888;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+button {
+
+  background: #7c3aed;
+
+  color: white;
+
+  border: none;
+
+  padding: 13px 20px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  transition: 0.2s;
+
+  box-shadow:
+    0 0 15px
+    rgba(124, 58, 237, 0.25);
+}
+
+button:hover {
+
+  background: #9333ea;
+
+  transform:
+    translateY(-1px);
+
+  box-shadow:
+    0 0 25px
+    rgba(168, 85, 247, 0.45);
+}
+
+button:active {
+
+  transform:
+    translateY(0);
+}
+
+button.secondary {
+
+  background: #151515;
+
+  border:
+    1px solid #3b1a61;
+}
+
+button.secondary:hover {
+
+  background: #21142d;
+}
+
+button.danger {
+
+  background: #3f163f;
+
+  border:
+    1px solid #72246f;
+}
+
+
+/* =========================================================
+   CONTROLS
+========================================================= */
+
+.controls {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 14px;
+
+  margin-top: 20px;
+}
+
+.control {
+
+  background: #101010;
+
+  border:
+    1px solid #24103f;
+
+  border-radius: 12px;
+
+  padding: 15px;
+}
+
+.control label {
+
+  display: block;
+
+  color: #888;
+
+  font-size: 12px;
+
+  margin-bottom: 8px;
+}
+
+select,
+input[type="number"] {
+
+  width: 100%;
+
+  background: #080808;
+
+  color: #ffffff;
+
+  border:
+    1px solid #39205a;
+
+  border-radius: 8px;
+
+  padding: 10px;
+
+  outline: none;
+}
+
+select:focus,
+input[type="number"]:focus {
+
+  border-color: #8b5cf6;
+
+  box-shadow:
+    0 0 10px
+    rgba(139, 92, 246, 0.2);
+}
+
+.range-value {
+
+  color: #c084fc;
+
+  font-weight: bold;
+
+  margin-top: 5px;
+}
+
+input[type="range"] {
+
+  width: 100%;
+
+  accent-color: #8b5cf6;
+}
+
+
+/* =========================================================
+   DATASET
+========================================================= */
+
+.dataset-actions {
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 12px;
+
+  margin-top: 18px;
+}
+
+.dataset-info {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 12px;
+
+  margin-top: 18px;
+}
+
+.info-box {
+
+  background: #101010;
+
+  border:
+    1px solid #24103f;
+
+  border-radius: 12px;
+
+  padding: 15px;
+}
+
+.info-label {
+
+  color: #777;
+
+  font-size: 11px;
+
+  margin-bottom: 5px;
+}
+
+.info-value {
+
+  color: #c084fc;
+
+  font-size: 20px;
+
+  font-weight: bold;
+}
+
+
+/* =========================================================
+   NETWORK
+========================================================= */
+
+.network-container {
+
+  overflow-x: auto;
+
+  padding: 30px 0 20px;
+}
+
+.network {
+
+  min-width: 520px;
+
+  display: flex;
+
+  justify-content:
+    space-around;
+
+  align-items: center;
+
+  gap: 70px;
+
+  position: relative;
+}
+
+.layer-container {
+
+  text-align: center;
+
+  position: relative;
+}
+
+.layer-title {
+
+  color: #888;
+
+  font-size: 13px;
+
+  margin-bottom: 15px;
+}
+
+.layer {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 14px;
+
+  align-items: center;
+}
+
+.neuron {
+
+  width: 42px;
+
+  height: 42px;
+
+  border-radius: 50%;
+
+  background: #7c3aed;
+
+  border:
+    2px solid #c084fc;
+
+  box-shadow:
+
+    0 0 12px
+    rgba(168, 85, 247, 0.45),
+
+    0 0 25px
+    rgba(124, 58, 237, 0.2);
+
+  transition:
+    0.15s;
+}
+
+.neuron.active {
+
+  background: #e9d5ff;
+
+  box-shadow:
+
+    0 0 18px
+    #c084fc,
+
+    0 0 40px
+    rgba(168, 85, 247, 0.8);
+
+  transform:
+    scale(1.12);
+}
+
+
+/* =========================================================
+   TRAINING
+========================================================= */
+
+.training-actions {
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 12px;
+
+  margin-bottom: 20px;
+}
+
+.progress-wrapper {
+
+  width: 100%;
+
+  height: 8px;
+
+  background: #151515;
+
+  border-radius: 10px;
+
+  overflow: hidden;
+
+  margin: 15px 0 22px;
+}
+
+.progress {
+
+  width: 0%;
+
+  height: 100%;
+
+  background:
+    linear-gradient(
+      90deg,
+      #7c3aed,
+      #d946ef
+    );
+
+  transition:
+    width 0.15s;
+}
+
+.stats {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  gap: 15px;
+}
+
+.stat {
+
+  background: #101010;
+
+  border:
+    1px solid #24103f;
+
+  border-radius: 12px;
+
+  padding: 18px;
+}
+
+.stat-label {
+
+  color: #777;
+
+  font-size: 12px;
+
+  margin-bottom: 8px;
+}
+
+.stat-value {
+
+  color: #c084fc;
+
+  font-size: 24px;
+
+  font-weight: bold;
+}
+
+
+/* =========================================================
+   GRAPH
+========================================================= */
+
+.graph-wrapper {
+
+  width: 100%;
+
+  overflow: hidden;
+}
+
+canvas {
+
+  display: block;
+
+  width: 100%;
+
+  max-width: 800px;
+
+  height: 420px;
+
+  margin: auto;
+
+  background: #050505;
+
+  border:
+    1px solid #32145f;
+
+  border-radius: 14px;
+
+  box-shadow:
+    inset 0 0 40px
+    rgba(124, 58, 237, 0.07);
+
+  cursor: crosshair;
+}
+
+.graph-help {
+
+  text-align: center;
+
+  color: #666;
+
+  font-size: 12px;
+
+  margin-top: 10px;
+}
+
+
+/* =========================================================
+   PREDICTION
+========================================================= */
+
+.prediction {
+
+  text-align: center;
+
+  padding: 20px;
+
+  background: #101010;
+
+  border:
+    1px solid #24103f;
+
+  border-radius: 14px;
+}
+
+.prediction-result {
+
+  font-size: 30px;
+
+  font-weight: bold;
+
+  color: #c084fc;
+
+  margin: 10px 0;
+}
+
+.prediction-detail {
+
+  color: #777;
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+footer {
+
+  text-align: center;
+
+  padding: 35px 20px;
+
+  color: #555;
+
+  border-top:
+    1px solid #151515;
+}
+
+footer strong {
+
+  color: #7c3aed;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .logo {
+    font-size: 40px;
+  }
+
+  main {
+    padding: 20px 14px;
+  }
+
+  .panel {
+    padding: 18px;
+  }
+
+  .controls {
+    grid-template-columns: 1fr;
+  }
+
+  .dataset-info {
+    grid-template-columns: 1fr;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  canvas {
+    height: 320px;
+  }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- ========================================================
+     HEADER
+========================================================= -->
+
+<header>
+
+  <div class="logo">
+    Neu1
+  </div>
+
+  <div class="subtitle">
+    Neural Network Playground
+  </div>
+
+  <div class="version">
+    V0.2 — Real Learning
+  </div>
+
+</header>
+
+
+<main>
+
+
+<!-- ========================================================
+     DATASET
+========================================================= -->
+
+<section class="panel">
+
+  <h2>
+    Dataset
+  </h2>
+
+  <p class="description">
+    Generate different datasets and watch a neural network
+    learn how to classify them.
+  </p>
+
+
+  <div class="controls">
+
+    <div class="control">
+
+      <label for="datasetType">
+        DATASET TYPE
+      </label>
+
+      <select id="datasetType">
+
+        <option value="clusters">
+          Two Clusters
+        </option>
+
+        <option value="xor">
+          XOR
+        </option>
+
+        <option value="circle">
+          Circle
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="control">
+
+      <label for="sampleCount">
+        SAMPLES
+      </label>
+
+      <input
+        id="sampleCount"
+        type="number"
+        min="20"
+        max="500"
+        value="100"
+      >
+
+    </div>
+
+
+    <div class="control">
+
+      <label for="noise">
+        NOISE
+      </label>
+
+      <input
+        id="noise"
+        type="range"
+        min="0"
+        max="0.3"
+        step="0.01"
+        value="0.05"
+      >
+
+      <div
+        class="range-value"
+        id="noiseValue">
+        0.05
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="dataset-actions">
+
+    <button onclick="generateData()">
+      Generate Dataset
+    </button>
+
+    <button
+      class="secondary"
+      onclick="randomizeNetwork()">
+      Randomize Network
+    </button>
+
+  </div>
+
+
+  <div class="dataset-info">
+
+    <div class="info-box">
+
+      <div class="info-label">
+        TOTAL SAMPLES
+      </div>
+
+      <div
+        class="info-value"
+        id="sampleInfo">
+        0
+      </div>
+
+    </div>
+
+
+    <div class="info-box">
+
+      <div class="info-label">
+        CLASS 0
+      </div>
+
+      <div
+        class="info-value"
+        id="class0Info">
+        0
+      </div>
+
+    </div>
+
+
+    <div class="info-box">
+
+      <div class="info-label">
+        CLASS 1
+      </div>
+
+      <div
+        class="info-value"
+        id="class1Info">
+        0
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================
+     NETWORK
+========================================================= -->
+
+<section class="panel">
+
+  <h2>
+    Neural Network
+  </h2>
+
+  <p class="description">
+    A small feed-forward neural network with one hidden layer.
+  </p>
+
+
+  <div class="network-container">
+
+    <div class="network">
+
+
+      <!-- INPUT -->
+
+      <div class="layer-container">
+
+        <div class="layer-title">
+          Input Layer
+        </div>
+
+        <div class="layer">
+
+          <div class="neuron"></div>
+
+          <div class="neuron"></div>
+
+        </div>
+
+      </div>
+
+
+      <!-- HIDDEN -->
+
+      <div class="layer-container">
+
+        <div class="layer-title">
+          Hidden Layer
+        </div>
+
+        <div class="layer">
+
+          <div class="neuron"></div>
+
+          <div class="neuron"></div>
+
+          <div class="neuron"></div>
+
+          <div class="neuron"></div>
+
+        </div>
+
+      </div>
+
+
+      <!-- OUTPUT -->
+
+      <div class="layer-container">
+
+        <div class="layer-title">
+          Output Layer
+        </div>
+
+        <div class="layer">
+
+          <div class="neuron"></div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================
+     TRAINING
+========================================================= -->
+
+<section class="panel">
+
+  <h2>
+    Training
+  </h2>
+
+  <p class="description">
+    Adjust the learning parameters and train the network.
+  </p>
+
+
+  <div class="controls">
+
+    <div class="control">
+
+      <label for="learningRate">
+        LEARNING RATE
+      </label>
+
+      <input
+        id="learningRate"
+        type="range"
+        min="0.01"
+        max="2"
+        step="0.01"
+        value="0.5"
+      >
+
+      <div
+        class="range-value"
+        id="learningRateValue">
+        0.50
+      </div>
+
+    </div>
+
+
+    <div class="control">
+
+      <label for="epochs">
+        EPOCHS
+      </label>
+
+      <input
+        id="epochs"
+        type="number"
+        min="1"
+        max="1000"
+        value="100"
+      >
+
+    </div>
+
+
+    <div class="control">
+
+      <label>
+        TRAINING MODE
+      </label>
+
+      <div
+        style="
+        color:#c084fc;
+        padding-top:10px;
+        font-weight:bold;
+        "
+        id="trainingStatus">
+        Ready
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="training-actions">
+
+    <button onclick="train()">
+      Train Neural Network
+    </button>
+
+    <button
+      class="danger"
+      onclick="stopTraining()">
+      Stop
+    </button>
+
+    <button
+      class="secondary"
+      onclick="resetTraining()">
+      Reset
+    </button>
+
+  </div>
+
+
+  <div class="progress-wrapper">
+
+    <div
+      class="progress"
+      id="progress">
+    </div>
+
+  </div>
+
+
+  <div class="stats">
+
+
+    <div class="stat">
+
+      <div class="stat-label">
+        EPOCH
+      </div>
+
+      <div
+        class="stat-value"
+        id="epoch">
+        0
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div class="stat-label">
+        LOSS
+      </div>
+
+      <div
+        class="stat-value"
+        id="loss">
+        —
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div class="stat-label">
+        ACCURACY
+      </div>
+
+      <div
+        class="stat-value"
+        id="accuracy">
+        —
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div class="stat-label">
+        LEARNING RATE
+      </div>
+
+      <div
+        class="stat-value"
+        id="lrStat">
+        0.50
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================
+     DECISION BOUNDARY
+========================================================= -->
+
+<section class="panel">
+
+  <h2>
+    Decision Boundary
+  </h2>
+
+  <p class="description">
+    The background represents the neural network's current
+    prediction across the entire input space.
+  </p>
+
+
+  <div class="graph-wrapper">
+
+    <canvas
+      id="graph"
+      width="800"
+      height="420">
+    </canvas>
+
+  </div>
+
+  <div class="graph-help">
+    Tap or click the graph to test a new point.
+  </div>
+
+</section>
+
+
+<!-- ========================================================
+     PREDICTION
+========================================================= -->
+
+<section class="panel">
+
+  <h2>
+    Prediction
+  </h2>
+
+  <div class="prediction">
+
+    <div class="prediction-detail">
+      LAST TESTED POINT
+    </div>
+
+    <div
+      class="prediction-result"
+      id="predictionResult">
+      —
+    </div>
+
+    <div
+      class="prediction-detail"
+      id="predictionDetail">
+      Click the graph to test a point.
+    </div>
+
+  </div>
+
+</section>
+
+
+</main>
+
+
+<!-- ========================================================
+     FOOTER
+========================================================= -->
+
+<footer>
+
+  <strong>Neu1</strong>
+
+  <br>
+
+  Experiment. Learn. Build.
+
+</footer>
+
+
+<!-- ========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script>
+
+
+/* =========================================================
+   GLOBAL STATE
+========================================================= */
+
+let points = [];
+
+let training = false;
+
+let trainingTimer = null;
+
+let currentEpoch = 0;
+
+let lastPrediction = null;
+
+
+/* =========================================================
+   NETWORK CONFIG
+========================================================= */
+
+const inputSize = 2;
+
+const hiddenSize = 4;
+
+
+/* =========================================================
+   NETWORK PARAMETERS
+========================================================= */
+
+let weightsInputHidden = [];
+
+let biasHidden = [];
+
+let weightsHiddenOutput = [];
+
+let biasOutput = 0;
+
+
+/* =========================================================
+   RANDOM WEIGHT
+========================================================= */
+
+function randomWeight() {
+
+  return (
+    Math.random() * 2 - 1
+  );
+
+}
+
+
+/* =========================================================
    INITIALIZE NETWORK
-========================= */
+========================================================= */
 
 function initializeNetwork() {
 
@@ -818,21 +1321,36 @@ function initializeNetwork() {
 
   biasHidden = [];
 
-  for (let i = 0; i < hiddenSize; i++) {
+
+  for (
+    let i = 0;
+    i < hiddenSize;
+    i++
+  ) {
 
     weightsInputHidden.push([
+
       randomWeight(),
+
       randomWeight()
+
     ]);
 
-    biasHidden.push(randomWeight());
+    biasHidden.push(
+      randomWeight()
+    );
 
   }
 
 
   weightsHiddenOutput = [];
 
-  for (let i = 0; i < hiddenSize; i++) {
+
+  for (
+    let i = 0;
+    i < hiddenSize;
+    i++
+  ) {
 
     weightsHiddenOutput.push(
       randomWeight()
@@ -840,36 +1358,73 @@ function initializeNetwork() {
 
   }
 
-  biasOutput = randomWeight();
+
+  biasOutput =
+    randomWeight();
 
 }
 
 
-/* =========================
-   ACTIVATION
-========================= */
+/* =========================================================
+   RANDOMIZE NETWORK
+========================================================= */
+
+function randomizeNetwork() {
+
+  stopTraining();
+
+  initializeNetwork();
+
+  resetTraining();
+
+  drawGraph();
+
+}
+
+
+/* =========================================================
+   SIGMOID
+========================================================= */
 
 function sigmoid(x) {
 
-  return 1 / (1 + Math.exp(-x));
+  return (
+    1 /
+    (1 + Math.exp(-x))
+  );
 
 }
 
 
-/* =========================
+/* =========================================================
    FORWARD PASS
-========================= */
+========================================================= */
 
 function forward(x, y) {
 
-  let hidden = [];
+  const hidden = [];
 
-  for (let i = 0; i < hiddenSize; i++) {
+
+  for (
+    let i = 0;
+    i < hiddenSize;
+    i++
+  ) {
 
     const sum =
-      x * weightsInputHidden[i][0] +
-      y * weightsInputHidden[i][1] +
+
+      x *
+      weightsInputHidden[i][0]
+
+      +
+
+      y *
+      weightsInputHidden[i][1]
+
+      +
+
       biasHidden[i];
+
 
     hidden.push(
       sigmoid(sum)
@@ -878,11 +1433,18 @@ function forward(x, y) {
   }
 
 
-  let outputSum = biasOutput;
+  let outputSum =
+    biasOutput;
 
-  for (let i = 0; i < hiddenSize; i++) {
+
+  for (
+    let i = 0;
+    i < hiddenSize;
+    i++
+  ) {
 
     outputSum +=
+
       hidden[i] *
       weightsHiddenOutput[i];
 
@@ -894,399 +1456,148 @@ function forward(x, y) {
 
 
   return {
-    hidden,
-    output
+
+    hidden: hidden,
+
+    output: output
+
   };
 
 }
 
 
-/* =========================
-   GENERATE DATA
-========================= */
+/* =========================================================
+   RANDOM NORMAL
+========================================================= */
 
-function generateData() {
+function randomNormal() {
 
-  points = [];
+  let u = 0;
 
-  for (let i = 0; i < 50; i++) {
+  let v = 0;
 
-    points.push({
 
-      x: Math.random() * 0.4,
-      y: Math.random() * 0.4,
+  while (u === 0) {
+
+    u = Math.random();
+
+  }
+
+
+  while (v === 0) {
+
+    v = Math.random();
+
+  }
+
+
+  return Math.sqrt(
+    -2 *
+    Math.log(u)
+  ) *
+  Math.cos(
+    2 *
+    Math.PI *
+    v
+  );
+
+}
+
+
+/* =========================================================
+   CLAMP
+========================================================= */
+
+function clamp(
+  value,
+  min,
+  max
+) {
+
+  return Math.max(
+    min,
+    Math.min(max, value)
+  );
+
+}
+
+
+/* =========================================================
+   DATASET — CLUSTERS
+========================================================= */
+
+function generateClusters(
+  count,
+  noise
+) {
+
+  const data = [];
+
+  const perClass =
+    Math.floor(count / 2);
+
+
+  for (
+    let i = 0;
+    i < perClass;
+    i++
+  ) {
+
+    data.push({
+
+      x: clamp(
+        0.25 +
+        randomNormal() *
+        (0.08 + noise),
+
+        0.02,
+        0.48
+      ),
+
+      y: clamp(
+        0.25 +
+        randomNormal() *
+        (0.08 + noise),
+
+        0.02,
+        0.48
+      ),
+
       label: 0
 
     });
 
 
-    points.push({
+    data.push({
 
-      x: 0.6 + Math.random() * 0.4,
-      y: 0.6 + Math.random() * 0.4,
+      x: clamp(
+        0.75 +
+        randomNormal() *
+        (0.08 + noise),
+
+        0.52,
+        0.98
+      ),
+
+      y: clamp(
+        0.75 +
+        randomNormal() *
+        (0.08 + noise),
+
+        0.52,
+        0.98
+      ),
+
       label: 1
 
     });
 
   }
 
-  drawGraph();
+
+  return data;
 
 }
 
 
-/* =========================
-   DRAW GRAPH
-========================= */
-
-function drawGraph() {
-
-  const canvas =
-    document.getElementById("graph");
-
-  const ctx =
-    canvas.getContext("2d");
-
-
-  ctx.clearRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-
-  /* Grid */
-
-  ctx.strokeStyle = "#151515";
-
-  for (
-    let x = 0;
-    x <= canvas.width;
-    x += 50
-  ) {
-
-    ctx.beginPath();
-
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, canvas.height);
-
-    ctx.stroke();
-
-  }
-
-
-  for (
-    let y = 0;
-    y <= canvas.height;
-    y += 50
-  ) {
-
-    ctx.beginPath();
-
-    ctx.moveTo(0, y);
-    ctx.lineTo(canvas.width, y);
-
-    ctx.stroke();
-
-  }
-
-
-  /* Decision boundary */
-
-  const gridSize = 20;
-
-  for (
-    let gx = 0;
-    gx < gridSize;
-    gx++
-  ) {
-
-    for (
-      let gy = 0;
-      gy < gridSize;
-      gy++
-    ) {
-
-      const x =
-        gx / gridSize;
-
-      const y =
-        gy / gridSize;
-
-
-      const result =
-        forward(x, y);
-
-
-      if (result.output > 0.5) {
-
-        ctx.fillStyle =
-          "rgba(217, 70, 239, 0.08)";
-
-      } else {
-
-        ctx.fillStyle =
-          "rgba(139, 92, 246, 0.08)";
-
-      }
-
-
-      ctx.fillRect(
-
-        gx *
-          canvas.width /
-          gridSize,
-
-        gy *
-          canvas.height /
-          gridSize,
-
-        canvas.width /
-          gridSize + 1,
-
-        canvas.height /
-          gridSize + 1
-
-      );
-
-    }
-
-  }
-
-
-  /* Data points */
-
-  points.forEach(point => {
-
-    ctx.beginPath();
-
-    ctx.arc(
-
-      point.x *
-        canvas.width,
-
-      point.y *
-        canvas.height,
-
-      6,
-
-      0,
-
-      Math.PI * 2
-
-    );
-
-
-    ctx.fillStyle =
-      point.label === 0
-        ? "#8b5cf6"
-        : "#d946ef";
-
-
-    ctx.fill();
-
-  });
-
-}
-
-
-/* =========================
-   TRAIN
-========================= */
-
-function train() {
-
-  if (training) return;
-
-  training = true;
-
-
-  const learningRate = 0.5;
-
-  let epoch = 0;
-
-
-  const interval =
-    setInterval(() => {
-
-      let totalLoss = 0;
-
-      let correct = 0;
-
-
-      points.forEach(point => {
-
-        const result =
-          forward(
-            point.x,
-            point.y
-          );
-
-
-        const output =
-          result.output;
-
-
-        const error =
-          point.label - output;
-
-
-        totalLoss +=
-          error * error;
-
-
-        if (
-          (output >= 0.5 &&
-            point.label === 1) ||
-
-          (output < 0.5 &&
-            point.label === 0)
-        ) {
-
-          correct++;
-
-        }
-
-
-        /*
-          Output gradient
-        */
-
-        const outputGradient =
-          error *
-          output *
-          (1 - output);
-
-
-        /*
-          Update hidden → output
-        */
-
-        for (
-          let i = 0;
-          i < hiddenSize;
-          i++
-        ) {
-
-          weightsHiddenOutput[i] +=
-
-            learningRate *
-            outputGradient *
-            result.hidden[i];
-
-        }
-
-
-        biasOutput +=
-          learningRate *
-          outputGradient;
-
-
-        /*
-          Hidden layer update
-        */
-
-        for (
-          let i = 0;
-          i < hiddenSize;
-          i++
-        ) {
-
-          const hidden =
-            result.hidden[i];
-
-
-          const hiddenGradient =
-
-            hidden *
-            (1 - hidden) *
-
-            weightsHiddenOutput[i] *
-
-            outputGradient;
-
-
-          weightsInputHidden[i][0] +=
-
-            learningRate *
-            hiddenGradient *
-            point.x;
-
-
-          weightsInputHidden[i][1] +=
-
-            learningRate *
-            hiddenGradient *
-            point.y;
-
-
-          biasHidden[i] +=
-
-            learningRate *
-            hiddenGradient;
-
-        }
-
-      });
-
-
-      epoch++;
-
-
-      const loss =
-        totalLoss /
-        points.length;
-
-
-      const accuracy =
-        correct /
-        points.length *
-        100;
-
-
-      document.getElementById(
-        "epoch"
-      ).textContent = epoch;
-
-
-      document.getElementById(
-        "loss"
-      ).textContent =
-        loss.toFixed(4);
-
-
-      document.getElementById(
-        "accuracy"
-      ).textContent =
-        accuracy.toFixed(1) + "%";
-
-
-      drawGraph();
-
-
-      if (epoch >= 100) {
-
-        clearInterval(interval);
-
-        training = false;
-
-      }
-
-    }, 40);
-
-}
-
-
-/* =========================
-   START
-========================= */
-
-initializeNetwork();
-
-generateData();
-
-</script>
-
-</body>
-  </html>
+      
