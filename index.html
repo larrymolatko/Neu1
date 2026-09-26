@@ -1520,12 +1520,58 @@ function clamp(
   );
 
 }
+/* =========================================================
+   DATASET — CLUSTERS
+========================================================= */
 
+function generateClusters(count, noise) {
+
+  const data = [];
+  const perClass = Math.floor(count / 2);
+
+  for (let i = 0; i < perClass; i++) {
+
+    data.push({
+      x: clamp(
+        0.25 + randomNormal() * (0.08 + noise),
+        0.02,
+        0.48
+      ),
+
+      y: clamp(
+        0.25 + randomNormal() * (0.08 + noise),
+        0.02,
+        0.48
+      ),
+
+      label: 0
+    });
+
+    data.push({
+      x: clamp(
+        0.75 + randomNormal() * (0.08 + noise),
+        0.52,
+        0.98
+      ),
+
+      y: clamp(
+        0.75 + randomNormal() * (0.08 + noise),
+        0.52,
+        0.98
+      ),
+
+      label: 1
+    });
+  }
+
+  return data;
+  }
 /* =========================================================
    DATASET — XOR
 ========================================================= */
 
 function generateXOR(count, noise) {
+
   const data = [];
 
   for (let i = 0; i < count; i++) {
@@ -1533,58 +1579,61 @@ function generateXOR(count, noise) {
     const x = Math.random();
     const y = Math.random();
 
-    let label = (x > 0.5) !== (y > 0.5) ? 1 : 0;
-
-    const nx = clamp(
-      x + randomNormal() * noise * 0.15,
-      0.02,
-      0.98
-    );
-
-    const ny = clamp(
-      y + randomNormal() * noise * 0.15,
-      0.02,
-      0.98
-    );
+    const label =
+      (x > 0.5) !== (y > 0.5)
+        ? 1
+        : 0;
 
     data.push({
-      x: nx,
-      y: ny,
+      x: clamp(
+        x + randomNormal() * noise * 0.15,
+        0.02,
+        0.98
+      ),
+
+      y: clamp(
+        y + randomNormal() * noise * 0.15,
+        0.02,
+        0.98
+      ),
+
       label: label
     });
   }
 
   return data;
 }
-
-
-/* =========================================================
+  /* =========================================================
    DATASET — CIRCLE
 ========================================================= */
 
 function generateCircle(count, noise) {
+
   const data = [];
 
   for (let i = 0; i < count; i++) {
 
-    const angle = Math.random() * Math.PI * 2;
+    const angle =
+      Math.random() * Math.PI * 2;
 
     const radius =
       i % 2 === 0
         ? 0.25 + randomNormal() * noise
         : 0.65 + randomNormal() * noise;
 
-    const x = clamp(
-      0.5 + Math.cos(angle) * radius,
-      0.02,
-      0.98
-    );
+    const x =
+      clamp(
+        0.5 + Math.cos(angle) * radius,
+        0.02,
+        0.98
+      );
 
-    const y = clamp(
-      0.5 + Math.sin(angle) * radius,
-      0.02,
-      0.98
-    );
+    const y =
+      clamp(
+        0.5 + Math.sin(angle) * radius,
+        0.02,
+        0.98
+      );
 
     data.push({
       x: x,
@@ -1594,10 +1643,8 @@ function generateCircle(count, noise) {
   }
 
   return data;
-}
-
-
-/* =========================================================
+  }
+  /* =========================================================
    GENERATE DATASET
 ========================================================= */
 
@@ -1619,15 +1666,28 @@ function generateData() {
     );
 
   if (type === "clusters") {
-    points = generateClusters(count, noise);
-  }
 
-  else if (type === "xor") {
-    points = generateXOR(count, noise);
-  }
+    points =
+      generateClusters(
+        count,
+        noise
+      );
 
-  else if (type === "circle") {
-    points = generateCircle(count, noise);
+  } else if (type === "xor") {
+
+    points =
+      generateXOR(
+        count,
+        noise
+      );
+
+  } else if (type === "circle") {
+
+    points =
+      generateCircle(
+        count,
+        noise
+      );
   }
 
   currentEpoch = 0;
@@ -1637,25 +1697,22 @@ function generateData() {
   resetTrainingUI();
   drawGraph();
 }
-
-
-/* =========================================================
+  /* =========================================================
    DATASET INFO
 ========================================================= */
 
 function updateDatasetInfo() {
 
-  const total =
-    points.length;
+  const total = points.length;
 
   const class0 =
     points.filter(
-      p => p.label === 0
+      point => point.label === 0
     ).length;
 
   const class1 =
     points.filter(
-      p => p.label === 1
+      point => point.label === 1
     ).length;
 
   const totalElement =
@@ -1679,10 +1736,8 @@ function updateDatasetInfo() {
     class1Element.textContent = class1;
   }
 }
-
-
-/* =========================================================
-   LOSS
+  /* =========================================================
+   CALCULATE LOSS
 ========================================================= */
 
 function calculateLoss() {
@@ -1696,31 +1751,33 @@ function calculateLoss() {
   for (const point of points) {
 
     const prediction =
-      forward(point.x, point.y).output;
+      forward(
+        point.x,
+        point.y
+      ).output;
 
     const target =
       point.label;
 
     const epsilon = 1e-7;
 
-    loss +=
-      -(
-        target *
-        Math.log(prediction + epsilon)
+    loss += -(
+      target *
+      Math.log(
+        prediction + epsilon
+      )
       +
-        (1 - target) *
-        Math.log(
-          1 - prediction + epsilon
-        )
-      );
+      (1 - target) *
+      Math.log(
+        1 - prediction + epsilon
+      )
+    );
   }
 
   return loss / points.length;
 }
-
-
-/* =========================================================
-   ACCURACY
+  /* =========================================================
+   CALCULATE ACCURACY
 ========================================================= */
 
 function calculateAccuracy() {
@@ -1734,10 +1791,15 @@ function calculateAccuracy() {
   for (const point of points) {
 
     const prediction =
-      forward(point.x, point.y).output;
+      forward(
+        point.x,
+        point.y
+      ).output;
 
     const predictedClass =
-      prediction >= 0.5 ? 1 : 0;
+      prediction >= 0.5
+        ? 1
+        : 0;
 
     if (
       predictedClass === point.label
@@ -1748,10 +1810,8 @@ function calculateAccuracy() {
 
   return correct / points.length;
 }
-
-
-/* =========================================================
-   TRAINING STEP
+  /* =========================================================
+   TRAINING STEP — BACKPROPAGATION
 ========================================================= */
 
 function trainStep() {
@@ -1768,12 +1828,10 @@ function trainStep() {
     const target = point.label;
 
     /* -------------------------
-       FORWARD
+       FORWARD PASS
     ------------------------- */
 
     const hidden = [];
-
-    const hiddenZ = [];
 
     for (let i = 0; i < hiddenSize; i++) {
 
@@ -1781,8 +1839,6 @@ function trainStep() {
         x * weightsInputHidden[i][0] +
         y * weightsInputHidden[i][1] +
         biasHidden[i];
-
-      hiddenZ.push(z);
 
       hidden.push(
         sigmoid(z)
@@ -1804,28 +1860,11 @@ function trainStep() {
 
 
     /* -------------------------
-       BACKPROPAGATION
+       OUTPUT ERROR
     ------------------------- */
 
     const outputError =
       output - target;
-
-
-    /* -------------------------
-       OUTPUT GRADIENTS
-    ------------------------- */
-
-    const outputWeightGradients = [];
-
-    for (let i = 0; i < hiddenSize; i++) {
-
-      outputWeightGradients.push(
-        outputError * hidden[i]
-      );
-    }
-
-    const outputBiasGradient =
-      outputError;
 
 
     /* -------------------------
@@ -1849,19 +1888,20 @@ function trainStep() {
 
 
     /* -------------------------
-       UPDATE OUTPUT
+       UPDATE OUTPUT WEIGHTS
     ------------------------- */
 
     for (let i = 0; i < hiddenSize; i++) {
 
       weightsHiddenOutput[i] -=
         learningRate *
-        outputWeightGradients[i];
+        outputError *
+        hidden[i];
     }
 
     biasOutput -=
       learningRate *
-      outputBiasGradient;
+      outputError;
 
 
     /* -------------------------
@@ -1884,11 +1924,10 @@ function trainStep() {
         learningRate *
         hiddenGradients[i];
     }
+  }
 }
-
-
-/* =========================================================
-   TRAINING UI
+  /* =========================================================
+   UPDATE TRAINING UI
 ========================================================= */
 
 function updateTrainingUI() {
@@ -1898,6 +1937,11 @@ function updateTrainingUI() {
 
   const accuracy =
     calculateAccuracy();
+
+  const epochs =
+    Number(
+      document.getElementById("epochs").value
+    );
 
   const epochElement =
     document.getElementById("epoch");
@@ -1911,11 +1955,6 @@ function updateTrainingUI() {
   const progressElement =
     document.getElementById("progress");
 
-  const epochs =
-    Number(
-      document.getElementById("epochs").value
-    );
-
   if (epochElement) {
     epochElement.textContent =
       currentEpoch;
@@ -1928,7 +1967,9 @@ function updateTrainingUI() {
 
   if (accuracyElement) {
     accuracyElement.textContent =
-      Math.round(accuracy * 100) + "%";
+      Math.round(
+        accuracy * 100
+      ) + "%";
   }
 
   if (progressElement) {
@@ -1942,4 +1983,600 @@ function updateTrainingUI() {
     progressElement.style.width =
       progress + "%";
   }
+}
+  /* =========================================================
+   TRAIN
+========================================================= */
+
+function train() {
+
+  if (training) {
+    return;
   }
+
+  if (points.length === 0) {
+    generateData();
+    return;
+  }
+
+  training = true;
+  currentEpoch = 0;
+
+  const epochs =
+    Number(
+      document.getElementById("epochs").value
+    );
+
+  const modeElement =
+    document.getElementById("trainingMode");
+
+  if (modeElement) {
+    modeElement.textContent =
+      "Training...";
+  }
+
+  trainingTimer =
+    setInterval(() => {
+
+      if (!training) {
+        return;
+      }
+
+      trainStep();
+
+      currentEpoch++;
+
+      updateTrainingUI();
+      drawGraph();
+
+      if (currentEpoch >= epochs) {
+        finishTraining();
+      }
+
+    }, 20);
+}
+
+
+/* =========================================================
+   STOP TRAINING
+========================================================= */
+
+function stopTraining() {
+
+  training = false;
+
+  if (trainingTimer !== null) {
+
+    clearInterval(
+      trainingTimer
+    );
+
+    trainingTimer = null;
+  }
+
+  const modeElement =
+    document.getElementById("trainingMode");
+
+  if (modeElement) {
+    modeElement.textContent =
+      "Stopped";
+  }
+}
+
+
+/* =========================================================
+   FINISH TRAINING
+========================================================= */
+
+function finishTraining() {
+
+  training = false;
+
+  if (trainingTimer !== null) {
+
+    clearInterval(
+      trainingTimer
+    );
+
+    trainingTimer = null;
+  }
+
+  updateTrainingUI();
+  drawGraph();
+
+  const modeElement =
+    document.getElementById("trainingMode");
+
+  if (modeElement) {
+    modeElement.textContent =
+      "Training Complete";
+  }
+}
+  /* =========================================================
+   RESET TRAINING
+========================================================= */
+
+function resetTrainingUI() {
+
+  const epochElement =
+    document.getElementById("epoch");
+
+  const lossElement =
+    document.getElementById("loss");
+
+  const accuracyElement =
+    document.getElementById("accuracy");
+
+  const progressElement =
+    document.getElementById("progress");
+
+  const modeElement =
+    document.getElementById("trainingMode");
+
+  if (epochElement) {
+    epochElement.textContent = "0";
+  }
+
+  if (lossElement) {
+    lossElement.textContent = "0.0000";
+  }
+
+  if (accuracyElement) {
+    accuracyElement.textContent = "0%";
+  }
+
+  if (progressElement) {
+    progressElement.style.width = "0%";
+  }
+
+  if (modeElement) {
+    modeElement.textContent = "Ready";
+  }
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+function resetTraining() {
+
+  stopTraining();
+
+  currentEpoch = 0;
+  lastPrediction = null;
+
+  initializeNetwork();
+
+  resetTrainingUI();
+
+  drawGraph();
+}
+  /* =========================================================
+   DRAW GRAPH
+========================================================= */
+
+function drawGraph() {
+
+  const canvas =
+    document.getElementById("graph");
+
+  if (!canvas) {
+    return;
+  }
+
+  const ctx =
+    canvas.getContext("2d");
+
+  const width =
+    canvas.width;
+
+  const height =
+    canvas.height;
+
+
+  /* -------------------------
+     BACKGROUND
+  ------------------------- */
+
+  ctx.clearRect(
+    0,
+    0,
+    width,
+    height
+  );
+
+
+  /* -------------------------
+     DECISION BOUNDARY
+  ------------------------- */
+
+  const step = 8;
+
+  for (
+    let px = 0;
+    px < width;
+    px += step
+  ) {
+
+    for (
+      let py = 0;
+      py < height;
+      py += step
+    ) {
+
+      const x =
+        px / width;
+
+      const y =
+        py / height;
+
+      const prediction =
+        forward(x, y).output;
+
+      if (prediction >= 0.5) {
+
+        ctx.fillStyle =
+          "rgba(168, 85, 247, 0.16)";
+
+      } else {
+
+        ctx.fillStyle =
+          "rgba(59, 130, 246, 0.10)";
+      }
+
+      ctx.fillRect(
+        px,
+        py,
+        step,
+        step
+      );
+    }
+  }
+
+
+  /* -------------------------
+     GRID
+  ------------------------- */
+
+  ctx.strokeStyle =
+    "rgba(255,255,255,0.08)";
+
+  ctx.lineWidth = 1;
+
+  for (
+    let i = 0;
+    i <= 10;
+    i++
+  ) {
+
+    const x =
+      (i / 10) * width;
+
+    const y =
+      (i / 10) * height;
+
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y);
+    ctx.stroke();
+  }
+
+
+  /* -------------------------
+     DATA POINTS
+  ------------------------- */
+
+  for (const point of points) {
+
+    const px =
+      point.x * width;
+
+    const py =
+      point.y * height;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      px,
+      py,
+      5,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.fillStyle =
+      point.label === 1
+        ? "#a855f7"
+        : "#3b82f6";
+
+    ctx.fill();
+
+    ctx.strokeStyle =
+      "rgba(255,255,255,0.7)";
+
+    ctx.lineWidth = 1;
+
+    ctx.stroke();
+  }
+
+
+  /* -------------------------
+     LAST TESTED POINT
+  ------------------------- */
+
+  if (lastPrediction) {
+
+    const px =
+      lastPrediction.x * width;
+
+    const py =
+      lastPrediction.y * height;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      px,
+      py,
+      9,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.strokeStyle =
+      "#ffffff";
+
+    ctx.lineWidth = 2;
+
+    ctx.stroke();
+  }
+}
+  /* =========================================================
+   TEST POINT
+========================================================= */
+
+function testPoint(x, y) {
+
+  const result =
+    forward(x, y);
+
+  const prediction =
+    result.output;
+
+  const predictedClass =
+    prediction >= 0.5
+      ? 1
+      : 0;
+
+  lastPrediction = {
+    x: x,
+    y: y,
+    prediction: prediction,
+    class: predictedClass
+  };
+
+  const pointElement =
+    document.getElementById("lastPoint");
+
+  const resultElement =
+    document.getElementById("prediction");
+
+  const detailElement =
+    document.getElementById("predictionDetail");
+
+  if (pointElement) {
+
+    pointElement.textContent =
+      "(" +
+      x.toFixed(2) +
+      ", " +
+      y.toFixed(2) +
+      ")";
+  }
+
+  if (resultElement) {
+
+    resultElement.textContent =
+      "Class " +
+      predictedClass;
+  }
+
+  if (detailElement) {
+
+    detailElement.textContent =
+      "Confidence: " +
+      (prediction * 100).toFixed(1) +
+      "%";
+  }
+
+  drawGraph();
+}
+  /* =========================================================
+   GRAPH CLICK
+========================================================= */
+
+const graph =
+  document.getElementById("graph");
+
+if (graph) {
+
+  graph.addEventListener(
+    "click",
+    function(event) {
+
+      const rect =
+        graph.getBoundingClientRect();
+
+      const x =
+        (event.clientX - rect.left) /
+        rect.width;
+
+      const y =
+        (event.clientY - rect.top) /
+        rect.height;
+
+      testPoint(
+        clamp(x, 0, 1),
+        clamp(y, 0, 1)
+      );
+    }
+  );
+}
+
+
+/* =========================================================
+   UI EVENTS
+========================================================= */
+
+const generateButton =
+  document.getElementById("generateData");
+
+if (generateButton) {
+
+  generateButton.addEventListener(
+    "click",
+    generateData
+  );
+}
+
+
+const randomizeButton =
+  document.getElementById("randomizeNetwork");
+
+if (randomizeButton) {
+
+  randomizeButton.addEventListener(
+    "click",
+    randomizeNetwork
+  );
+}
+
+
+const trainButton =
+  document.getElementById("train");
+
+if (trainButton) {
+
+  trainButton.addEventListener(
+    "click",
+    train
+  );
+}
+
+
+const stopButton =
+  document.getElementById("stop");
+
+if (stopButton) {
+
+  stopButton.addEventListener(
+    "click",
+    stopTraining
+  );
+}
+
+
+const resetButton =
+  document.getElementById("reset");
+
+if (resetButton) {
+
+  resetButton.addEventListener(
+    "click",
+    resetTraining
+  );
+}
+
+
+/* =========================================================
+   SLIDERS
+========================================================= */
+
+const noiseInput =
+  document.getElementById("noise");
+
+if (noiseInput) {
+
+  noiseInput.addEventListener(
+    "input",
+    generateData
+  );
+}
+
+
+const learningRateInput =
+  document.getElementById("learningRate");
+
+if (learningRateInput) {
+
+  learningRateInput.addEventListener(
+    "input",
+    function() {
+
+      const value =
+        document.getElementById(
+          "learningRateValue"
+        );
+
+      if (value) {
+        value.textContent =
+          learningRateInput.value;
+      }
+    }
+  );
+}
+
+
+/* =========================================================
+   DATASET SELECT
+========================================================= */
+
+const datasetSelect =
+  document.getElementById("datasetType");
+
+if (datasetSelect) {
+
+  datasetSelect.addEventListener(
+    "change",
+    generateData
+  );
+}
+
+
+/* =========================================================
+   SAMPLE COUNT
+========================================================= */
+
+const sampleCountInput =
+  document.getElementById("sampleCount");
+
+if (sampleCountInput) {
+
+  sampleCountInput.addEventListener(
+    "change",
+    generateData
+  );
+}
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+initializeNetwork();
+
+generateData();
+  
+  initializeNetwork();
+
+generateData();
+
+</script>
+
+</body>
+</html>
