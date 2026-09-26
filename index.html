@@ -1521,83 +1521,425 @@ function clamp(
 
 }
 
-
 /* =========================================================
-   DATASET — CLUSTERS
+   DATASET — XOR
 ========================================================= */
 
-function generateClusters(
-  count,
-  noise
-) {
-
+function generateXOR(count, noise) {
   const data = [];
 
-  const perClass =
-    Math.floor(count / 2);
+  for (let i = 0; i < count; i++) {
 
+    const x = Math.random();
+    const y = Math.random();
 
-  for (
-    let i = 0;
-    i < perClass;
-    i++
-  ) {
+    let label = (x > 0.5) !== (y > 0.5) ? 1 : 0;
 
-    data.push({
+    const nx = clamp(
+      x + randomNormal() * noise * 0.15,
+      0.02,
+      0.98
+    );
 
-      x: clamp(
-        0.25 +
-        randomNormal() *
-        (0.08 + noise),
-
-        0.02,
-        0.48
-      ),
-
-      y: clamp(
-        0.25 +
-        randomNormal() *
-        (0.08 + noise),
-
-        0.02,
-        0.48
-      ),
-
-      label: 0
-
-    });
-
+    const ny = clamp(
+      y + randomNormal() * noise * 0.15,
+      0.02,
+      0.98
+    );
 
     data.push({
-
-      x: clamp(
-        0.75 +
-        randomNormal() *
-        (0.08 + noise),
-
-        0.52,
-        0.98
-      ),
-
-      y: clamp(
-        0.75 +
-        randomNormal() *
-        (0.08 + noise),
-
-        0.52,
-        0.98
-      ),
-
-      label: 1
-
+      x: nx,
+      y: ny,
+      label: label
     });
-
   }
 
-
   return data;
-
 }
 
 
-      
+/* =========================================================
+   DATASET — CIRCLE
+========================================================= */
+
+function generateCircle(count, noise) {
+  const data = [];
+
+  for (let i = 0; i < count; i++) {
+
+    const angle = Math.random() * Math.PI * 2;
+
+    const radius =
+      i % 2 === 0
+        ? 0.25 + randomNormal() * noise
+        : 0.65 + randomNormal() * noise;
+
+    const x = clamp(
+      0.5 + Math.cos(angle) * radius,
+      0.02,
+      0.98
+    );
+
+    const y = clamp(
+      0.5 + Math.sin(angle) * radius,
+      0.02,
+      0.98
+    );
+
+    data.push({
+      x: x,
+      y: y,
+      label: i % 2
+    });
+  }
+
+  return data;
+}
+
+
+/* =========================================================
+   GENERATE DATASET
+========================================================= */
+
+function generateData() {
+
+  stopTraining();
+
+  const type =
+    document.getElementById("datasetType").value;
+
+  const count =
+    Number(
+      document.getElementById("sampleCount").value
+    );
+
+  const noise =
+    Number(
+      document.getElementById("noise").value
+    );
+
+  if (type === "clusters") {
+    points = generateClusters(count, noise);
+  }
+
+  else if (type === "xor") {
+    points = generateXOR(count, noise);
+  }
+
+  else if (type === "circle") {
+    points = generateCircle(count, noise);
+  }
+
+  currentEpoch = 0;
+  lastPrediction = null;
+
+  updateDatasetInfo();
+  resetTrainingUI();
+  drawGraph();
+}
+
+
+/* =========================================================
+   DATASET INFO
+========================================================= */
+
+function updateDatasetInfo() {
+
+  const total =
+    points.length;
+
+  const class0 =
+    points.filter(
+      p => p.label === 0
+    ).length;
+
+  const class1 =
+    points.filter(
+      p => p.label === 1
+    ).length;
+
+  const totalElement =
+    document.getElementById("totalSamples");
+
+  const class0Element =
+    document.getElementById("class0");
+
+  const class1Element =
+    document.getElementById("class1");
+
+  if (totalElement) {
+    totalElement.textContent = total;
+  }
+
+  if (class0Element) {
+    class0Element.textContent = class0;
+  }
+
+  if (class1Element) {
+    class1Element.textContent = class1;
+  }
+}
+
+
+/* =========================================================
+   LOSS
+========================================================= */
+
+function calculateLoss() {
+
+  if (points.length === 0) {
+    return 0;
+  }
+
+  let loss = 0;
+
+  for (const point of points) {
+
+    const prediction =
+      forward(point.x, point.y).output;
+
+    const target =
+      point.label;
+
+    const epsilon = 1e-7;
+
+    loss +=
+      -(
+        target *
+        Math.log(prediction + epsilon)
+      +
+        (1 - target) *
+        Math.log(
+          1 - prediction + epsilon
+        )
+      );
+  }
+
+  return loss / points.length;
+}
+
+
+/* =========================================================
+   ACCURACY
+========================================================= */
+
+function calculateAccuracy() {
+
+  if (points.length === 0) {
+    return 0;
+  }
+
+  let correct = 0;
+
+  for (const point of points) {
+
+    const prediction =
+      forward(point.x, point.y).output;
+
+    const predictedClass =
+      prediction >= 0.5 ? 1 : 0;
+
+    if (
+      predictedClass === point.label
+    ) {
+      correct++;
+    }
+  }
+
+  return correct / points.length;
+}
+
+
+/* =========================================================
+   TRAINING STEP
+========================================================= */
+
+function trainStep() {
+
+  const learningRate =
+    Number(
+      document.getElementById("learningRate").value
+    );
+
+  for (const point of points) {
+
+    const x = point.x;
+    const y = point.y;
+    const target = point.label;
+
+    /* -------------------------
+       FORWARD
+    ------------------------- */
+
+    const hidden = [];
+
+    const hiddenZ = [];
+
+    for (let i = 0; i < hiddenSize; i++) {
+
+      const z =
+        x * weightsInputHidden[i][0] +
+        y * weightsInputHidden[i][1] +
+        biasHidden[i];
+
+      hiddenZ.push(z);
+
+      hidden.push(
+        sigmoid(z)
+      );
+    }
+
+    let outputZ =
+      biasOutput;
+
+    for (let i = 0; i < hiddenSize; i++) {
+
+      outputZ +=
+        hidden[i] *
+        weightsHiddenOutput[i];
+    }
+
+    const output =
+      sigmoid(outputZ);
+
+
+    /* -------------------------
+       BACKPROPAGATION
+    ------------------------- */
+
+    const outputError =
+      output - target;
+
+
+    /* -------------------------
+       OUTPUT GRADIENTS
+    ------------------------- */
+
+    const outputWeightGradients = [];
+
+    for (let i = 0; i < hiddenSize; i++) {
+
+      outputWeightGradients.push(
+        outputError * hidden[i]
+      );
+    }
+
+    const outputBiasGradient =
+      outputError;
+
+
+    /* -------------------------
+       HIDDEN GRADIENTS
+    ------------------------- */
+
+    const hiddenGradients = [];
+
+    for (let i = 0; i < hiddenSize; i++) {
+
+      const gradient =
+        outputError *
+        weightsHiddenOutput[i] *
+        hidden[i] *
+        (1 - hidden[i]);
+
+      hiddenGradients.push(
+        gradient
+      );
+    }
+
+
+    /* -------------------------
+       UPDATE OUTPUT
+    ------------------------- */
+
+    for (let i = 0; i < hiddenSize; i++) {
+
+      weightsHiddenOutput[i] -=
+        learningRate *
+        outputWeightGradients[i];
+    }
+
+    biasOutput -=
+      learningRate *
+      outputBiasGradient;
+
+
+    /* -------------------------
+       UPDATE INPUT → HIDDEN
+    ------------------------- */
+
+    for (let i = 0; i < hiddenSize; i++) {
+
+      weightsInputHidden[i][0] -=
+        learningRate *
+        hiddenGradients[i] *
+        x;
+
+      weightsInputHidden[i][1] -=
+        learningRate *
+        hiddenGradients[i] *
+        y;
+
+      biasHidden[i] -=
+        learningRate *
+        hiddenGradients[i];
+    }
+}
+
+
+/* =========================================================
+   TRAINING UI
+========================================================= */
+
+function updateTrainingUI() {
+
+  const loss =
+    calculateLoss();
+
+  const accuracy =
+    calculateAccuracy();
+
+  const epochElement =
+    document.getElementById("epoch");
+
+  const lossElement =
+    document.getElementById("loss");
+
+  const accuracyElement =
+    document.getElementById("accuracy");
+
+  const progressElement =
+    document.getElementById("progress");
+
+  const epochs =
+    Number(
+      document.getElementById("epochs").value
+    );
+
+  if (epochElement) {
+    epochElement.textContent =
+      currentEpoch;
+  }
+
+  if (lossElement) {
+    lossElement.textContent =
+      loss.toFixed(4);
+  }
+
+  if (accuracyElement) {
+    accuracyElement.textContent =
+      Math.round(accuracy * 100) + "%";
+  }
+
+  if (progressElement) {
+
+    const progress =
+      Math.min(
+        100,
+        (currentEpoch / epochs) * 100
+      );
+
+    progressElement.style.width =
+      progress + "%";
+  }
+  }
