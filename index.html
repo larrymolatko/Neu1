@@ -1697,45 +1697,103 @@ function generateData() {
   resetTrainingUI();
   drawGraph();
 }
-  /* =========================================================
-   DATASET INFO
+/* =========================================================
+   GENERATE DATASET
 ========================================================= */
 
-function updateDatasetInfo() {
+function generateData() {
 
-  const total = points.length;
+  const datasetType =
+    document.getElementById("datasetType");
 
-  const class0 =
-    points.filter(
-      point => point.label === 0
-    ).length;
+  const sampleCount =
+    document.getElementById("sampleCount");
 
-  const class1 =
-    points.filter(
-      point => point.label === 1
-    ).length;
+  const noiseInput =
+    document.getElementById("noise");
 
-  const totalElement =
-    document.getElementById("totalSamples");
-
-  const class0Element =
-    document.getElementById("class0");
-
-  const class1Element =
-    document.getElementById("class1");
-
-  if (totalElement) {
-    totalElement.textContent = total;
+  if (!datasetType || !sampleCount || !noiseInput) {
+    console.error(
+      "Neu1: Dataset controls not found."
+    );
+    return;
   }
 
-  if (class0Element) {
-    class0Element.textContent = class0;
+  const type =
+    datasetType.value;
+
+  const count =
+    Number(sampleCount.value);
+
+  const noise =
+    Number(noiseInput.value);
+
+  if (!Number.isFinite(count) || count <= 0) {
+    console.error(
+      "Neu1: Invalid sample count."
+    );
+    return;
   }
 
-  if (class1Element) {
-    class1Element.textContent = class1;
+  /* -------------------------
+     GENERATE DATA
+  ------------------------- */
+
+  if (type === "clusters") {
+
+    points =
+      generateClusters(
+        count,
+        noise
+      );
+
+  } else if (type === "xor") {
+
+    points =
+      generateXOR(
+        count,
+        noise
+      );
+
+  } else if (type === "circle") {
+
+    points =
+      generateCircle(
+        count,
+        noise
+      );
+
+  } else {
+
+    console.error(
+      "Neu1: Unknown dataset type:",
+      type
+    );
+
+    return;
   }
-}
+
+  /* -------------------------
+     RESET STATE
+  ------------------------- */
+
+  currentEpoch = 0;
+  lastPrediction = null;
+
+  /* -------------------------
+     UPDATE UI
+  ------------------------- */
+
+  updateDatasetInfo();
+  resetTrainingUI();
+  drawGraph();
+
+  console.log(
+    "Neu1 Dataset Generated:",
+    points.length,
+    "samples"
+  );
+  }
   /* =========================================================
    CALCULATE LOSS
 ========================================================= */
