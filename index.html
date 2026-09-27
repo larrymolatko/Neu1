@@ -1527,78 +1527,47 @@ function clamp(
 function generateClusters(count, noise) {
 
   const data = [];
-  const perClass = Math.floor(count / 2);
-
-  for (let i = 0; i < perClass; i++) {
-
-    data.push({
-      x: clamp(
-        0.25 + randomNormal() * (0.08 + noise),
-        0.02,
-        0.48
-      ),
-
-      y: clamp(
-        0.25 + randomNormal() * (0.08 + noise),
-        0.02,
-        0.48
-      ),
-
-      label: 0
-    });
-
-    data.push({
-      x: clamp(
-        0.75 + randomNormal() * (0.08 + noise),
-        0.52,
-        0.98
-      ),
-
-      y: clamp(
-        0.75 + randomNormal() * (0.08 + noise),
-        0.52,
-        0.98
-      ),
-
-      label: 1
-    });
-  }
-
-  return data;
-  }
-/* =========================================================
-   DATASET — XOR
-========================================================= */
-
-function generateXOR(count, noise) {
-
-  const data = [];
 
   for (let i = 0; i < count; i++) {
 
-    const x = Math.random();
-    const y = Math.random();
+    const label = i % 2;
 
-    const label =
-      (x > 0.5) !== (y > 0.5)
-        ? 1
-        : 0;
+    if (label === 0) {
 
-    data.push({
-      x: clamp(
-        x + randomNormal() * noise * 0.15,
-        0.02,
-        0.98
-      ),
+      data.push({
+        x: clamp(
+          0.25 + randomNormal() * (0.08 + noise),
+          0.02,
+          0.48
+        ),
 
-      y: clamp(
-        y + randomNormal() * noise * 0.15,
-        0.02,
-        0.98
-      ),
+        y: clamp(
+          0.25 + randomNormal() * (0.08 + noise),
+          0.02,
+          0.48
+        ),
 
-      label: label
-    });
+        label: 0
+      });
+
+    } else {
+
+      data.push({
+        x: clamp(
+          0.75 + randomNormal() * (0.08 + noise),
+          0.52,
+          0.98
+        ),
+
+        y: clamp(
+          0.75 + randomNormal() * (0.08 + noise),
+          0.52,
+          0.98
+        ),
+
+        label: 1
+      });
+    }
   }
 
   return data;
