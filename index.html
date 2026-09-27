@@ -1573,6 +1573,49 @@ function generateClusters(count, noise) {
   return data;
 }
   /* =========================================================
+   DATASET — XOR
+========================================================= */
+
+function generateXOR(count, noise) {
+
+  const data = [];
+
+  for (let i = 0; i < count; i++) {
+
+    let x = Math.random();
+    let y = Math.random();
+
+    x = clamp(
+      x + randomNormal() * noise * 0.15,
+      0.02,
+      0.98
+    );
+
+    y = clamp(
+      y + randomNormal() * noise * 0.15,
+      0.02,
+      0.98
+    );
+
+    let label =
+      (x > 0.5) !== (y > 0.5)
+        ? 1
+        : 0;
+
+    if (Math.random() < noise * 0.25) {
+      label = label === 0 ? 1 : 0;
+    }
+
+    data.push({
+      x: x,
+      y: y,
+      label: label
+    });
+  }
+
+  return data;
+}
+  /* =========================================================
    DATASET — CIRCLE
 ========================================================= */
 
