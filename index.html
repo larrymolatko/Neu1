@@ -1761,6 +1761,7 @@ function generateData() {
 
   
 function startFirstExperiment() {
+
   const datasetType =
     document.getElementById("datasetType");
 
@@ -1769,6 +1770,9 @@ function startFirstExperiment() {
 
   const noise =
     document.getElementById("noise");
+
+  const noiseValue =
+    document.getElementById("noiseValue");
 
   if (datasetType) {
     datasetType.value = "clusters";
@@ -1779,30 +1783,31 @@ function startFirstExperiment() {
   }
 
   if (noise) {
-  noise.value = 0.05;
-
-  const noiseValue =
-    document.getElementById("noiseValue");
-
-  if (noiseValue) {
-    noiseValue.textContent = noise.value;
+    noise.value = 0.05;
   }
-}
 
   stopTraining();
   resetTraining();
   generateData();
 
-if (noise) {
-  noise.value = 0.05;
-
-  const noiseValue =
-    document.getElementById("noiseValue");
+  if (noise) {
+    noise.value = 0.05;
+  }
 
   if (noiseValue) {
     noiseValue.textContent = "0.05";
   }
+
+  const datasetSection =
+    document.getElementById("datasetType");
+
+  if (datasetSection) {
+    datasetSection.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
   }
+}
   /* =========================================================
    CALCULATE LOSS
 ========================================================= */
