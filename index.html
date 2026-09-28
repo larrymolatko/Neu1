@@ -129,7 +129,36 @@ header {
   font-size: 12px;
 }
 
+/* =========================================================
+   FIRST EXPERIMENT
+========================================================= */
 
+.first-experiment {
+  text-align: center;
+  padding: 35px 24px;
+  margin-bottom: 22px;
+  background: #0b0b0b;
+  border: 1px solid #32145f;
+  border-radius: 18px;
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.08);
+}
+
+.first-experiment h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 32px;
+}
+
+.first-experiment p {
+  color: #999999;
+  line-height: 1.6;
+  margin: 12px auto 22px;
+}
+
+.first-experiment button {
+  font-size: 15px;
+  padding: 14px 24px;
+  }
 /* =========================================================
    MAIN
 ========================================================= */
@@ -754,14 +783,24 @@ footer strong {
   </div>
 
   <div class="version">
-    V0.3 — Dataset & Training Controls(Experimental)
+    V0.4 — Interactive Learning & Experiments (Experimental)
   </div>
 
 </header>
 
 
 <main>
+<section class="first-experiment">
+  <h1>See a Neural Network Learn.</h1>
 
+  <p>
+    Generate data → Train the network → Watch it learn.
+  </p>
+
+  <button onclick="startFirstExperiment()">
+    ▶ Try Your First Experiment
+  </button>
+</section>
 
 <!-- ========================================================
      DATASET
@@ -2596,10 +2635,6 @@ initializeNetwork();
 
 generateData();
   
-  initializeNetwork();
-
-generateData();
-
 </script>
 
 </body>
