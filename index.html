@@ -1761,7 +1761,6 @@ function generateData() {
 
   
 function startFirstExperiment() {
-alert("First Experiment works!");
   const datasetType =
     document.getElementById("datasetType");
 
@@ -1792,15 +1791,16 @@ alert("First Experiment works!");
 
   stopTraining();
   resetTraining();
+  generateData();
 
-  const datasetSection =
-    document.getElementById("datasetType");
+if (noise) {
+  noise.value = 0.05;
 
-  if (datasetSection) {
-    datasetSection.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
+  const noiseValue =
+    document.getElementById("noiseValue");
+
+  if (noiseValue) {
+    noiseValue.textContent = "0.05";
   }
   }
   /* =========================================================
