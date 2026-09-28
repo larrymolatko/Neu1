@@ -1755,7 +1755,48 @@ function generateData() {
   resetTrainingUI();
   drawGraph();
 }
+/* =========================================================
+   FIRST EXPERIMENT
+========================================================= */
 
+function startFirstExperiment() {
+
+  const datasetType =
+    document.getElementById("datasetType");
+
+  const sampleCount =
+    document.getElementById("sampleCount");
+
+  const noise =
+    document.getElementById("noise");
+
+  if (datasetType) {
+    datasetType.value = "clusters";
+  }
+
+  if (sampleCount) {
+    sampleCount.value = 100;
+  }
+
+  if (noise) {
+    noise.value = 0.05;
+  }
+
+  stopTraining();
+  initializeNetwork();
+  resetTraining();
+  generateData();
+
+  const datasetSection =
+    document.getElementById("datasetType");
+
+  if (datasetSection) {
+    datasetSection.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+  }
   /* =========================================================
    CALCULATE LOSS
 ========================================================= */
