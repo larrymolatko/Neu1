@@ -1780,8 +1780,15 @@ alert("First Experiment works!");
   }
 
   if (noise) {
-    noise.value = 0.05;
+  noise.value = 0.05;
+
+  const noiseValue =
+    document.getElementById("noiseValue");
+
+  if (noiseValue) {
+    noiseValue.textContent = noise.value;
   }
+}
 
   stopTraining();
   resetTraining();
